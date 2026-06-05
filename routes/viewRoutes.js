@@ -6,6 +6,9 @@ const viewController = require('../controllers/viewController');
 
 const authMiddleware = require('../middleware/authMiddleware');
 
+router.get('/', (req, res) => {
+    res.redirect('/login');
+});
 
 router
     .route('/login')
