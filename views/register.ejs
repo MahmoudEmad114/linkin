@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Register</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+
+    <div class="auth-card">
+
+        <div class="logo">
+            LINK<span>IN</span>
+        </div>
+
+        <p class="subtitle">
+            Create your personal link collection.
+        </p>
+
+        <form action="/api/v1/auth/register" method="POST">
+
+            <input
+            class="input"
+            type="text"
+            name="name"
+            placeholder="Full Name">
+
+            <input
+            class="input"
+            type="email"
+            name="email"
+            placeholder="Email">
+
+            <input
+            class="input"
+            type="password"
+            name="password"
+            placeholder="Password">
+
+            <button class="btn">
+                Create Account
+            </button>
+
+        </form>
+
+        <div class="auth-link">
+
+            <a href="/login">
+                Already have an account?
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

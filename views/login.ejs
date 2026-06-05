@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Login</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+
+    <div class="auth-card">
+
+        <div class="logo">
+            LINK<span>IN</span>
+        </div>
+
+        <p class="subtitle">
+            Save all your important links in one place.
+        </p>
+
+        <form action="/api/v1/auth/login" method="POST">
+
+            <input
+            class="input"
+            type="email"
+            name="email"
+            placeholder="Email">
+
+            <input
+            class="input"
+            type="password"
+            name="password"
+            placeholder="Password">
+
+            <button class="btn">
+                Sign In
+            </button>
+
+        </form>
+
+        <div class="auth-link">
+
+            <a href="/register">
+                Create Account
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

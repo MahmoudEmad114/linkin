@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <div class="navbar">
+
+        <div class="brand">
+            LINK<span>IN</span>
+        </div>
+
+        <a
+        href="/api/v1/auth/logout"
+        class="logout">
+            Logout
+        </a>
+
+    </div>
+
+    <div class="hero">
+
+        <h2>
+            Welcome back, <%= user.name %>
+        </h2>
+
+        <p>
+            Manage all your saved links from one dashboard.
+        </p>
+
+    </div>
+
+    <div class="add-card">
+
+        <h3 class="section-title">
+            Add New Link
+        </h3>
+
+        <form action="/links/add" method="POST">
+
+            <input
+            class="input"
+            type="text"
+            name="title"
+            placeholder="Link Title">
+
+            <input
+            class="input"
+            type="text"
+            name="url"
+            placeholder="https://example.com">
+
+            <button class="btn">
+                Save Link
+            </button>
+
+        </form>
+
+    </div>
+
+    <% if(links.length === 0){ %>
+
+        <div class="empty">
+            No links saved yet 🚀
+        </div>
+
+    <% } %>
+
+    <div class="links-grid">
+
+        <% links.forEach(link => { %>
+
+            <div class="link-card">
+
+                <h3>
+                    <%= link.title %>
+                </h3>
+
+                <a
+                class="link-url"
+                target="_blank"
+                href="<%= link.url %>">
+
+                    <%= link.url %>
+
+                </a>
+
+                <div class="actions">
+
+                    <a
+                    target="_blank"
+                    href="<%= link.url %>"
+                    class="open-btn">
+
+                        Open
+
+                    </a>
+
+                    <form
+                    style="flex:1"
+                    action="/links/delete/<%= link._id %>"
+                    method="POST">
+
+                        <button
+                        class="delete-btn">
+
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        <% }) %>
+
+    </div>
+
+</div>
+
+</body>
+</html>
