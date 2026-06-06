@@ -14,10 +14,11 @@ exports.protect = async (req, res, next) => {
         }
 
         if (!token) {
-            return res.status(401).json({
-                status: 'fail',
-                message: 'You are not logged in'
-            });
+            // return res.status(401).json({
+            //     status: 'fail',
+            //     message: 'You are not logged in'
+            // });
+            return res.redirect('/login');
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
