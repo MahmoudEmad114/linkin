@@ -15,6 +15,7 @@ const app = require('./app');
 //         console.log('Connection readyState:', mongoose.connection.readyState);
 //     });
 
+console.log(process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('DB connection successful!');
