@@ -165,6 +165,11 @@ body{
     border:1px solid var(--border);
     border-radius:18px;
     padding:18px;
+    transition: all 0.4s;
+}
+
+.link-card:hover{
+    transform: translateY(-1rem);
 }
 
 .link-card h3{

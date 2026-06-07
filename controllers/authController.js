@@ -25,13 +25,13 @@ exports.register = async (req, res) => {
 
         res.redirect('/dashboard');
 
-        res.status(201).json({
-            status: 'success',
-            // token,
-            // data: {
-            //     user
-            // }
-        })
+        // res.status(201).json({
+        // status: 'success',
+        // token,
+        // data: {
+        //     user
+        // }
+        // })
     } catch (err) {
         console.log(err);
 
