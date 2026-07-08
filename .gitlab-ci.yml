@@ -1,0 +1,65 @@
+stages:
+  - test
+  - docker
+  - deploy
+
+variables:
+  IMAGE_NAME: $DOCKER_USERNAME/linkin
+  APP_VERSION: $CI_PIPELINE_IID
+
+.smoke-test:
+  stage: test
+  image: docker:24
+
+  before_script:
+    - apk add --no-cache curl
+    - env | grep -E '^(PORT|MONGO_URI|JWT_SECRET|JWT_EXPIRES_IN)' >> .env
+  services:
+    - docker:dind
+
+  script:
+    - docker build -t $IMAGE_NAME:$APP_VERSION .
+    - docker network create test-net || true
+    - docker run -d --name linkin --network test-net --env-file .env $IMAGE_NAME:$APP_VERSION
+    - sleep 10
+    - docker network ls
+    - docker logs linkin
+    - docker run --rm --network test-net alpine:latest sh -c "apk add curl && curl -s http://linkin:5000" || curl -s http://linkin:5000 || exit 1
+
+docker-build:
+  stage: docker
+  image: docker:24
+
+  services:
+    - docker:dind
+
+  script:
+    - echo "username:" $DOCKER_USERNAME "password:" $DOCKER_PASSWORD     
+    - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+    - docker build -t $IMAGE_NAME:$APP_VERSION .
+    - docker push $IMAGE_NAME:$APP_VERSION
+
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+
+  before_script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - echo $EC2_USER-$EC2_HOST  
+    - echo $IMAGE_NAME:$APP_VERSION
+    - env | grep -E '^(PORT|MONGO_URI|JWT_SECRET|JWT_EXPIRES_IN)' >> .env
+
+  script:
+    - |
+      scp -o StrictHostKeyChecking=no .env $EC2_USER@$EC2_HOST:/home/$EC2_USER/.env
+      
+      ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
+        docker pull $IMAGE_NAME:$APP_VERSION
+        docker stop linkin || true
+        docker rm linkin || true
+        docker run -d --name linkin -p 5000:5000 --env-file /home/$EC2_USER/.env $IMAGE_NAME:$APP_VERSION
+      "
