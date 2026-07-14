@@ -1,13 +1,14 @@
 stages:
   - test
   - docker
+  - playbook
   - deploy
 
 variables:
   IMAGE_NAME: $DOCKER_USERNAME/linkin
   APP_VERSION: $CI_PIPELINE_IID
 
-.smoke-test:
+smoke-test:
   stage: test
   image: docker:24
 
@@ -39,6 +40,20 @@ docker-build:
     - docker build -t $IMAGE_NAME:$APP_VERSION .
     - docker push $IMAGE_NAME:$APP_VERSION
 
+playbook:
+  stage: playbook
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client ansible
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+    - echo $SSL_KEY > ansible/linkin/files/linkin.key
+    - echo $SSL_CERT > ansible/linkin/files/linkin.crt
+
+  script:
+    - ansible-playbook --private-key ~/.ssh/id_rsa -i ansible/hosts.ini ansible/playbook1
 
 deploy:
   stage: deploy

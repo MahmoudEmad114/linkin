@@ -1,0 +1,13 @@
+---
+# playbook file 
+
+- name: Install and configure web servers
+  hosts: web
+  become: yes
+  roles:
+    - linkin
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
