@@ -24,18 +24,15 @@ app.use(express.static('public'));
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-    console.log('Hello from the middleware');
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log('Hello from the middleware');
+//     next();
+// });
 
 app.use('/', viewRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/links', linkRouter);
-
-
-
 
 // app.all((req, res, next) => {
 //     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

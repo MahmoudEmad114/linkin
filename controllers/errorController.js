@@ -129,7 +129,7 @@ module.exports = (err, req, res, next) => {
     }
 
     // PRODUCTION
-    else if (process.env.NODE_ENV.trim() === 'production') {
+    else if (process.env.NODE_ENV === 'production ') {
 
         let error = { ...err };
 
