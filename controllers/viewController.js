@@ -7,11 +7,15 @@ exports.getOverview = (req, res) => {
 }
 
 exports.getLogin = (req, res) => {
-    res.render('login');
+    res.render('login', {
+        error: req.query.error
+    });
 };
 
 exports.getRegister = (req, res) => {
-    res.render('register');
+    res.render('register', {
+        error: req.query.error
+    });
 };
 
 exports.getDashboard = catchAsync(async (req, res, next) => {

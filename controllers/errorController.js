@@ -31,16 +31,24 @@ const sendErrorDev = (err, req, res) => {
 
     // LOGIN ERROR
     if (req.originalUrl === '/api/v1/auth/login') {
-        return res.status(err.statusCode).render('login', {
-            error: err.message
-        });
+        return res.redirect(
+            `/login?error=${encodeURIComponent(
+                err.isOperational
+                    ? err.message
+                    : 'Something went wrong. Please try again.'
+            )}`
+        );
     }
 
     // REGISTER ERROR
     if (req.originalUrl === '/api/v1/auth/register') {
-        return res.status(err.statusCode).render('register', {
-            error: err.message
-        });
+        return res.redirect(
+            `/register?error=${encodeURIComponent(
+                err.isOperational
+                    ? err.message
+                    : 'Something went wrong. Please try again.'
+            )}`
+        );
     }
 
     // API
@@ -66,20 +74,24 @@ const sendErrorProd = (err, req, res) => {
 
     // LOGIN ERROR
     if (req.originalUrl === '/api/v1/auth/login') {
-        return res.status(err.statusCode).render('login', {
-            error: err.isOperational
-                ? err.message
-                : 'Something went wrong. Please try again.'
-        });
+        return res.redirect(
+            `/login?error=${encodeURIComponent(
+                err.isOperational
+                    ? err.message
+                    : 'Something went wrong. Please try again.'
+            )}`
+        );
     }
 
     // REGISTER ERROR
     if (req.originalUrl === '/api/v1/auth/register') {
-        return res.status(err.statusCode).render('register', {
-            error: err.isOperational
-                ? err.message
-                : 'Something went wrong. Please try again.'
-        });
+        return res.redirect(
+            `/register?error=${encodeURIComponent(
+                err.isOperational
+                    ? err.message
+                    : 'Something went wrong. Please try again.'
+            )}`
+        );
     }
 
     if (req.originalUrl.startsWith('/api')) {
