@@ -1,84 +1,53 @@
-const Link = require('../models/link');
+const Link = require('../models/linkModel');
+const APIFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-exports.getMyLinks = async (req, res) => {
-    try {
-        const links = await Link.find({
-            user: req.user._id
-        });
 
-        res.status(200).json({
-            status: 'success',
-            results: links.length,
-            data: {
-                links
-            }
-        })
-    } catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err
-        })
-    }
-}
+exports.getMyLinks = catchAsync(async (req, res, next) => {
+    const features = new APIFeatures(Link.find({
+        user: req.user._id
+    }), req.query).paginate();
 
-exports.getLink = async (req, res) => {
-    try {
-        const link = await Link.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
+    const links = await features.query;
 
-        res.status(200).json({
-            status: 'success',
-            data: {
-                link
-            }
-        })
-    } catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err
-        })
-    }
-}
 
-exports.createLink = async (req, res) => {
-    try {
-        const newLink = await Link.create({
-            title: req.body.title,
-            url: req.body.url,
-            user: req.user._id
+    res.status(200).json({
+        status: 'success',
+        results: links.length,
+        data: {
+            links
         }
-        );
-        res.status(201).json({
-            status: 'success',
-            data: {
-                newLink
-            }
-        });
-    } catch (err) {
-        res.status(400).json({
-            status: 'fail',
-            message: err.message
-        })
-    }
-}
+    })
+})
 
-exports.deleteLink = async (req, res) => {
-    try {
-        await Link.findOneAndDelete({
-            _id: req.params.id,
-            user: req.user._id
-        });
-        res.status(204).json({
-            status: 'success',
-            data: null,
-            message: 'Link deleted'
-        })
-    } catch (err) {
-        res.status(400).json({
-            status: 'fail',
-            message: err
-        })
+exports.createLink = catchAsync(async (req, res, next) => {
+    const newLink = await Link.create({
+        title: req.body.title,
+        url: req.body.url,
+        user: req.user._id
+    })
+
+    res.status(201).json({
+        status: 'success',
+        data: {
+            link: newLink
+        }
+    })
+})
+
+exports.deleteLink = catchAsync(async (req, res, next) => {
+    const link = await Link.findOneAndDelete({
+        _id: req.params.id,
+        user: req.user._id
+    })
+
+    if (!link) {
+        return next(new AppError('No link found with that ID', 404));
     }
-}
+
+    res.status(204).json({
+        status: 'success',
+        data: null,
+    })
+})

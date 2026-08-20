@@ -4,11 +4,10 @@ const router = express.Router();
 
 const viewController = require('../controllers/viewController');
 
-const authMiddleware = require('../middleware/authMiddleware');
+const authController = require('../controllers/authController');
 
-router.get('/', (req, res) => {
-    res.redirect('/login');
-});
+router.get('/', viewController.getOverview);
+
 
 router
     .route('/login')
@@ -20,6 +19,20 @@ router
 
 router
     .route('/dashboard')
-    .get(authMiddleware.protect, viewController.getDashboard);
+    .get(authController.protect, viewController.getDashboard);
+
+router
+    .post(
+        '/links/add',
+        authController.protect,
+        viewController.addLink
+    );
+
+router
+    .post(
+        '/links/delete/:id',
+        authController.protect,
+        viewController.deleteLink
+    );
 
 module.exports = router;

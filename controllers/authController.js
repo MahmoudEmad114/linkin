@@ -1,102 +1,78 @@
-const User = require('../models/user');
-const bcrypt = require('bcryptjs');
-const generateToken = require('../utils/generateToken');
+const jwt = require('jsonwebtoken')
+const User = require('../models/userModel');
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
+const { promisify } = require('util');
 
-exports.register = async (req, res) => {
-    try {
-
-        const { name, email, password } = req.body;
-
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword
-        });
-
-        const token = generateToken(user._id);
-
-
-        res.cookie('jwt', token, {
-            httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
-
-        res.redirect('/dashboard');
-
-        // res.status(201).json({
-        // status: 'success',
-        // token,
-        // data: {
-        //     user
-        // }
-        // })
-    } catch (err) {
-        console.log(err);
-
-        res.status(400).json({
-            status: 'fail',
-            message: err.message,
-            stack: err.stack
-        });
-    }
+const signToken = id => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN
+    })
 }
 
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+exports.register = catchAsync(async (req, res, next) => {
+    const newUser = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+    });
+    const token = signToken(newUser._id);
+    res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    });
+    res.redirect('/dashboard');
+})
 
-        if (!user) {
-            return res.status(401).json({
-                status: 'fail',
-                message: 'Invalid credentials'
-            })
-        }
-
-        const isCorrect = await bcrypt.compare(password, user.password);
-
-        if (!isCorrect) {
-            return res.status(401).json({
-                status: 'fail',
-                message: 'Invalid credentials'
-            })
-        }
-
-        const token = generateToken(user._id);
-        res.cookie('jwt', token, {
-            httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
-
-        res.redirect('/dashboard');
-
-        // res.status(200).json({
-        //     status: 'success',
-        // })
-
-        // } catch (err) {
-        //     res.status(400).json({
-        //         status: 'fail',
-        //         message: err
-        //     })
-        // }
-    } catch (err) {
-        console.log(err);
-
-        res.status(400).json({
-            status: 'fail',
-            message: err.message,
-            stack: err.stack
-        });
+exports.login = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return next(new AppError('Please provide email and password!', 400))
     }
-}
 
-exports.logout = (req, res) => {
-    res.cookie('jwt', '', {
-        expires: new Date(Date.now() + 1000)
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError('Incorrect email or password', 401))
+    }
+
+    const token = signToken(user._id);
+    res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
+    res.redirect('/dashboard')
+})
+
+exports.logout = (req, res) => {
+    res.clearCookie('jwt');
     res.redirect('/login');
 }
+
+exports.protect = catchAsync(async (req, res, next) => {
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt
+    }
+
+    if (!token) {
+        return next(new AppError('You are not logged in! Please log in to get access', 401))
+    }
+
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+
+    const currentUser = await User.findById(decoded.id)
+    if (!currentUser) {
+        return next(new AppError('The user belonging to this token does no longer exist', 401));
+    }
+
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next(new AppError('User recently changed password! Please log in again.', 401))
+    }
+
+    req.user = currentUser;
+    res.locals.user = currentUser;
+    next();
+})

@@ -1,138 +1,176 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
 
     <title>Dashboard | LINKIN</title>
-    <link rel="icon" type="image/png" href="/images/favicon.png">
-
-    <link rel="stylesheet" href="/css/style.css">
 
     <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+        rel="icon"
+        type="image/png"
+        href="/images/favicon.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
 </head>
 
 <body>
 
-<div class="dashboard">
+    <main class="dashboard">
 
-    <div class="navbar">
+        <div class="navbar">
 
-        <div class="brand">
-            LINK<span>IN</span>
+            <div class="brand">
+                LINK<span>IN</span>
+            </div>
+
+            <a
+                href="/api/v1/auth/logout"
+                class="logout"
+            >
+                Logout
+            </a>
+
         </div>
 
-        <a
-        href="/api/v1/auth/logout"
-        class="logout">
-            Logout
-        </a>
+        <div class="hero">
 
-    </div>
+            <h2>
+                Welcome back, <%= user.name %>
+            </h2>
 
-    <div class="hero">
+            <p>
+                Manage all your saved links from one dashboard.
+            </p>
 
-        <h2>
-            Welcome back, <%= user.name %>
-        </h2>
-
-        <p>
-            Manage all your saved links from one dashboard.
-        </p>
-
-    </div>
-
-    <div class="add-card">
-
-        <h3 class="section-title">
-            Add New Link
-        </h3>
-
-        <form action="/links/add" method="POST">
-
-            <input
-            class="input"
-            type="text"
-            name="title"
-            placeholder="Link Title">
-
-            <input
-            class="input"
-            type="text"
-            name="url"
-            placeholder="https://example.com">
-
-            <button class="btn">
-                Save Link
-            </button>
-
-        </form>
-
-    </div>
-
-    <% if(links.length === 0){ %>
-
-        <div class="empty">
-            No links saved yet 🚀
         </div>
 
-    <% } %>
+        <div class="add-card">
 
-    <div class="links-grid">
+            <h3 class="section-title">
+                Add New Link
+            </h3>
 
-        <% links.forEach(link => { %>
+            <form
+                action="/links/add"
+                method="POST"
+            >
 
-            <div class="link-card">
+                <input
+                    class="input"
+                    type="text"
+                    name="title"
+                    placeholder="Link Title"
+                    required
+                >
+
+                <input
+                    class="input"
+                    type="url"
+                    name="url"
+                    placeholder="https://example.com"
+                    required
+                >
+
+                <button class="btn">
+                    Save Link
+                </button>
+
+            </form>
+
+        </div>
+
+        <% if (links.length === 0) { %>
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    🔗
+                </div>
 
                 <h3>
-                    <%= link.title %>
+                    No links yet
                 </h3>
 
-                <a
-                class="link-url"
-                target="_blank"
-                href="<%= link.url %>">
-
-                    <%= link.url %>
-
-                </a>
-
-                <div class="actions">
-
-                    <a
-                    target="_blank"
-                    href="<%= link.url %>"
-                    class="open-btn">
-
-                        Open
-
-                    </a>
-
-                    <form
-                    style="flex:1"
-                    action="/links/delete/<%= link._id %>"
-                    method="POST">
-
-                        <button
-                        class="delete-btn">
-
-                            Delete
-
-                        </button>
-
-                    </form>
-
-                </div>
+                <p>
+                    You haven't saved any links yet.
+                    Add your first link above and start building
+                    your personal collection.
+                </p>
 
             </div>
 
-        <% }) %>
+        <% } else { %>
 
-    </div>
+            <div class="links-grid">
 
-</div>
+                <% links.forEach(link => { %>
+
+                    <div class="link-card">
+
+                        <h3>
+                            <%= link.title %>
+                        </h3>
+
+                        <a
+                            class="link-url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="<%= link.url %>"
+                        >
+                            <%= link.url %>
+                        </a>
+
+                        <div class="actions">
+
+                            <a
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href="<%= link.url %>"
+                                class="open-btn"
+                            >
+                                Open
+                            </a>
+
+                            <form
+                                class="delete-form"
+                                action="/links/delete/<%= link._id %>"
+                                method="POST"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        <% } %>
+
+    </main>
+
+    <%- include('_footer') %>
 
 </body>
+
 </html>

@@ -1,10 +1,10 @@
 const express = require('express');
 const linkController = require('../controllers/linkController');
-const authMiddleware = require('../middleware/authMiddleware');
+const authController = require('../controllers/authController');
 
 
 const router = express.Router();
-router.use(authMiddleware.protect)
+router.use(authController.protect)
 
 router
     .route('/')
@@ -13,8 +13,6 @@ router
 
 router
     .route('/:id')
-    .get(linkController.getLink)
     .delete(linkController.deleteLink);
-
 
 module.exports = router;    

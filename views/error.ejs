@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title><%= title || 'Something went wrong!' %> | LINKIN</title>
+
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <main class="error-wrapper">
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+
+        <h1><%= title || 'Something went wrong!' %></h1>
+
+        <p><%= msg || 'Please try again later.' %></p>
+
+        <div class="error-actions">
+          <a href="/" class="overview-btn primary"> Go Home </a>
+
+          <button class="overview-btn secondary" onclick="history.back()">
+            Go Back
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <%- include('_footer') %>
+  </body>
+</html>
